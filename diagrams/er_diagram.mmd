@@ -1,0 +1,100 @@
+erDiagram
+    AIRLINES {
+        int airline_id PK
+        varchar airline_name
+        varchar airline_code UK
+        varchar contact_email
+        varchar contact_phone
+    }
+
+    AIRPORTS {
+        int airport_id PK
+        varchar airport_code UK
+        varchar airport_name
+        varchar city
+        varchar country
+    }
+
+    AIRCRAFT {
+        int aircraft_id PK
+        int airline_id FK
+        varchar aircraft_model
+        varchar registration_number UK
+        int total_seats
+        int economy_seats
+        int business_seats
+    }
+
+    FLIGHT_SCHEDULES {
+        int flight_id PK
+        int airline_id FK
+        int aircraft_id FK
+        int origin_airport_id FK
+        int destination_airport_id FK
+        varchar flight_number
+        datetime departure_datetime
+        datetime arrival_datetime
+        decimal base_fare
+        varchar flight_status
+    }
+
+    PASSENGERS {
+        int passenger_id PK
+        varchar full_name
+        varchar email UK
+        varchar phone
+        date date_of_birth
+        datetime created_at
+    }
+
+    BOOKINGS {
+        int booking_id PK
+        varchar booking_reference UK
+        int passenger_id FK
+        datetime booking_datetime
+        decimal total_amount
+        varchar booking_status
+    }
+
+    TICKETS {
+        int ticket_id PK
+        int booking_id FK
+        int passenger_id FK
+        int flight_id FK
+        varchar seat_number
+        varchar travel_class
+        decimal ticket_fare
+        varchar ticket_status
+    }
+
+    PAYMENTS {
+        int payment_id PK
+        int booking_id FK
+        decimal amount
+        varchar payment_method
+        varchar payment_status
+        varchar transaction_reference
+        datetime payment_datetime
+    }
+
+    BOOKING_STATUS_HISTORY {
+        int history_id PK
+        int booking_id FK
+        varchar old_status
+        varchar new_status
+        datetime changed_at
+        varchar remarks
+    }
+
+    AIRLINES ||--o{ AIRCRAFT : "operates"
+    AIRLINES ||--o{ FLIGHT_SCHEDULES : "schedules"
+    AIRPORTS ||--o{ FLIGHT_SCHEDULES : "origin_of"
+    AIRPORTS ||--o{ FLIGHT_SCHEDULES : "destination_of"
+    AIRCRAFT ||--o{ FLIGHT_SCHEDULES : "assigned_to"
+    PASSENGERS ||--o{ BOOKINGS : "makes"
+    PASSENGERS ||--o{ TICKETS : "holds"
+    BOOKINGS ||--o{ TICKETS : "contains"
+    BOOKINGS ||--o{ PAYMENTS : "paid_via"
+    BOOKINGS ||--o{ BOOKING_STATUS_HISTORY : "tracks"
+    FLIGHT_SCHEDULES ||--o{ TICKETS : "booked_on"
+

@@ -1,0 +1,39 @@
+# Environment and credentials — NEVER commit these
+.env
+
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Office temporary files (e.g. Word lock files)
+~$*
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test and coverage artifacts
+.pytest_cache/
+htmlcov/
+.coverage
+*.egg-info/
+
+# Distribution / packaging
+dist/
+build/
+
