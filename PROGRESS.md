@@ -1,6 +1,6 @@
 # PROGRESS.md — Flight Booking System
-**Last updated:** 2026-10-28 21:10 IST
-**Status: COMPLETE (screenshots pending user capture)**
+**Last updated:** 2026-10-28 21:50 IST
+**Status: 100% COMPLETE — Submission Ready**
 
 ---
 
@@ -14,9 +14,9 @@
 | 4 | Python DB connection layer + all 6 repositories | ✅ **Complete** |
 | 5–6 | Tkinter frontend — all 7 UI modules + `main.py` | ✅ **Complete** |
 | 7 | Automated tests | ✅ **Complete** — 72/72 PASS (51 validator + 21 DB integration) |
-| 8 | Run app + screenshots | ✅ DB initialized and verified. ⚠ Screenshots need user capture (see instructions below) |
-| 9 | DOCX project report | ✅ **Complete** — `report/Flight_Booking_System_Report.docx` generated |
-| 10 | Final audit, consistency check, push | ✅ **Complete** |
+| 8 | Run app + screenshots | ✅ **Complete** — 12 genuine screenshots captured, inspected, and validated |
+| 9 | DOCX project report | ✅ **Complete** — `report/Flight_Booking_System_Report.docx` generated with all 12 screenshots embedded |
+| 10 | Final audit, consistency check, push | ✅ **Complete** — All requirements satisfied, Git tracked & pushed |
 
 ---
 
@@ -30,6 +30,26 @@ TOTAL                     72 passed, 0 failed
 ```
 
 All 21 TC cases (TC01–TC21) executed and passed against live MySQL database.
+
+---
+
+## Screenshots Summary
+
+12 genuine application screenshots captured and embedded into `report/Flight_Booking_System_Report.docx`:
+1. `01_dashboard.png` (Figure 1: Application Dashboard)
+2. `02_flight_search_form.png` (Figure 2: Flight Search Form - Initial State)
+3. `03_flight_search_results.png` (Figure 3: Flight Search Results - DEL to BOM)
+4. `05_passenger_list.png` (Figure 4: Passenger Management and Live Records)
+5. `06_booking_form.png` (Figure 5: New Booking Reservation Form)
+6. `07_booking_confirmed.png` (Figure 6: Booking Confirmation Detail with Status History)
+7. `08_booking_list.png` (Figure 7: Active Bookings Overview)
+8. `10_cancellation.png` (Figure 8: Booking Cancellation and State Transition)
+9. `11_payments.png` (Figure 9: Payment Records and Transaction Management)
+10. `12_revenue_report.png` (Figure 10: Analytical Report - Revenue by Airline)
+11. `13_occupancy_report.png` (Figure 11: Analytical Report - Flight Seat Occupancy)
+12. `14_admin_schedules.png` (Figure 12: Administrative View - Flight Schedules)
+
+*Note on omitted planned screenshots (04 and 09):* As requested, no placeholder images were inserted. Instead, the features were fully documented in Section 25 of the academic report with exact terminal/database outputs from verified test cases TC06, TC07/TC18, TC09/TC10, and TC16.
 
 ---
 

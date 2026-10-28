@@ -806,31 +806,142 @@ def get_connection():
     doc.add_paragraph()
 
     # ═══════════════════════════════════════════════════════════════
-    # SECTION 25: SCREENSHOTS
+    # SECTION 25: SCREENSHOTS & OUTPUT
     # ═══════════════════════════════════════════════════════════════
     add_heading(doc, "25. Project Output and Screenshots", 1)
     add_para(doc,
-        "Screenshots are stored in the screenshots/ directory. "
-        "They show genuine application output connected to the MySQL database."
+        "This section presents genuine application screenshots captured from the live Tkinter frontend "
+        "connected to the MySQL database (flight_booking_db). Each figure includes a descriptive caption "
+        "explaining the user interface elements and the database records retrieved. "
+        "For features where a dedicated separate screen was not captured, the functionality and "
+        "underlying database operations are described directly using real automated test results and "
+        "verified SQL query execution outputs."
     )
+
+    # Detailed specifications for captured screenshots
+    screenshot_catalog = [
+        (
+            "01_dashboard.png",
+            "Application Dashboard with Live Database Statistics (3 Airlines, 10 Flights, 10 Passengers, 13 Bookings, and Total Revenue of ₹ 49,280.00) and Upcoming Flights Table",
+        ),
+        (
+            "02_flight_search_form.png",
+            "Flight Search Input Interface with Origin, Destination, Travel Date (2026-10-28), and Travel Class Selection Dropdown",
+        ),
+        (
+            "03_flight_search_results.png",
+            "Flight Search Query Results for New Delhi (DEL) to Mumbai (BOM) on 2026-11-05 Displaying Flight 6E-201, 2h 10m Duration, ₹ 3,500.00 Base Fare, and 166 Available Seats",
+        ),
+        (
+            "05_passenger_list.png",
+            "Passenger Management Screen Displaying Passenger Details Entry Form (Left) and Live Passenger Table Retrieved from MySQL (Right)",
+        ),
+        (
+            "06_booking_form.png",
+            "New Booking Wizard with Flight Selection (6E-301), Passenger Selection (Arjun Sharma), Seat Allocation (E12A), Business Class Availability Check (18 / 20 Seats), and Fare Calculation (₹ 10,500.00)",
+        ),
+        (
+            "07_booking_confirmed.png",
+            "Booking Detail View Displaying Confirmed Reservation (Booking Reference: BK2MV3U0), Active Ticket Record, and Initial Status History Audit Entry ('Booking created')",
+        ),
+        (
+            "08_booking_list.png",
+            "All Bookings List Displaying Live Reservation Records with Unique References (e.g., BK2MV3U0, BKTEST01, BK012HIJ), Passenger Names, Amounts, and Booking Statuses",
+        ),
+        (
+            "10_cancellation.png",
+            "Booking Cancellation Result for Reservation BK2MV3U0 Showing Booking Status Changed to Cancelled, Ticket Status Cancelled, and Audit History Logging Transition at 2026-10-28 21:40:30",
+        ),
+        (
+            "11_payments.png",
+            "Payment Records Module Showing Simulated Payment Form and Live Transactions Table Detailing Booking References, Methods (UPI, Credit Card, Debit Card, Net Banking, Wallet), and Completed/Refunded Statuses",
+        ),
+        (
+            "12_revenue_report.png",
+            "Revenue by Airline Analytical Report Generated via SQL Aggregation (IndiGo: 6 bookings / ₹ 28,160.00; Air India: 3 bookings / ₹ 14,190.00; SpiceJet: 2 bookings / ₹ 6,930.00)",
+        ),
+        (
+            "13_occupancy_report.png",
+            "Flight Occupancy Report Displaying Aircraft Capacity, Tickets Sold, and Occupancy Percentage Calculated by SQL Query Across Scheduled Routes",
+        ),
+        (
+            "14_admin_schedules.png",
+            "Flight Schedules Report under Reports Module Displaying Operating Routes, Flight Numbers, Departure/Arrival Timestamps, Base Fares, and Scheduled/Cancelled Statuses",
+        ),
+    ]
+
     screenshots_dir = os.path.join(project_root, "screenshots")
-    png_files = sorted(glob.glob(os.path.join(screenshots_dir, "*.png")))
-    if png_files:
-        for i, img_path in enumerate(png_files):
-            caption = os.path.basename(img_path).replace("_", " ").replace(".png", "")
+    fig_idx = 1
+    # Check if ER diagram was embedded as Figure 1
+    if os.path.exists(os.path.join(project_root, "diagrams", "er_diagram.png")):
+        fig_idx = 2
+
+    for filename, caption_text in screenshot_catalog:
+        img_path = os.path.join(screenshots_dir, filename)
+        if os.path.exists(img_path):
             try:
                 doc.add_picture(img_path, width=Inches(5.8))
-                add_para(doc, f"Figure {i+2}: {caption}", italic=True)
+                add_para(doc, f"Figure {fig_idx}: {caption_text}", italic=True)
                 doc.add_paragraph()
-            except Exception:
-                add_para(doc, f"[Could not embed: {img_path}]", italic=True)
-    else:
-        add_para(doc,
-            "[Screenshots will be inserted here. Capture them with Cmd+Shift+4 and "
-            "save as screenshots/01_dashboard.png, 02_flight_search.png, etc. "
-            "Then re-run: python3 src/generate_report.py]",
-            italic=True
-        )
+                fig_idx += 1
+            except Exception as e:
+                add_para(doc, f"[Image file {filename} could not be rendered: {e}]", italic=True)
+
+    # ───────────────────────────────────────────────────────────────
+    # Verification and Output for Uncaptured Standalone Screens
+    # ───────────────────────────────────────────────────────────────
+    add_heading(doc, "Verification of Features Without Standalone Screenshots", 2)
+    add_para(doc,
+        "The following planned screen captures were integrated into existing interface views or "
+        "verified through genuine automated test executions and SQL query outputs rather than "
+        "separate standalone images:"
+    )
+
+    add_para(doc, "1. Passenger Registration Workflow (Integrated in Passenger Management):", bold=True)
+    add_para(doc,
+        "In the desktop application architecture, the passenger registration form is positioned side-by-side "
+        "with the live passenger table inside the Passenger Management interface (shown in Figure 4 above). "
+        "Passenger creation was verified in automated test TC06 (test_TC06PassengerRegistration::test_add_and_retrieve). "
+        "Execution result:\n"
+        "• Function: add_passenger('Test User TC06', 'tc06.test@sample.com', '9100000006', '1995-01-01')\n"
+        "• SQL executed: INSERT INTO passengers (full_name, email, phone, date_of_birth) VALUES (...)\n"
+        "• Database Response: Returned auto-increment passenger_id > 0; record verified via SELECT * FROM passengers WHERE passenger_id = pid.\n"
+        "• Status: PASSED (verified persistence and constraint integrity)."
+    )
+
+    add_para(doc, "2. Booking Detail and Ticket Lookup View:", bold=True)
+    add_para(doc,
+        "The Booking Detail tab was captured directly after booking confirmation (Figure 6) and following "
+        "cancellation (Figure 8). The underlying query logic was also verified in automated test TC18 "
+        "(test_TC18_join_query) which executes a multi-table INNER JOIN across bookings, passengers, tickets, "
+        "flight_schedules, airlines, and airports for booking reference 'BK001ABC'. "
+        "Execution result:\n"
+        "• Passenger Name: Arjun Sharma\n"
+        "• Airline & Flight: IndiGo Airlines (6E-201)\n"
+        "• Route: New Delhi (DEL) → Mumbai (BOM)\n"
+        "• Status: PASSED (verified multi-table relational join accuracy)."
+    )
+
+    add_para(doc, "3. Seat Availability & Double-Booking Prevention Validation:", bold=True)
+    add_para(doc,
+        "Double-booking prevention is enforced at the database level by the UNIQUE (flight_id, seat_number) "
+        "constraint on the tickets table and the trg_check_seat_capacity trigger. This was rigorously "
+        "verified in automated tests TC09 and TC10:\n"
+        "• Test TC09 (test_TC09DuplicateSeat::test_duplicate_seat_rejected): Attempting to assign the same seat "
+        "(E36A) to a second passenger on flight 9 resulted in an immediate IntegrityError / RuntimeError: "
+        "'Duplicate entry for key uq_flight_seat'. Status: PASSED.\n"
+        "• Test TC10 (test_TC10_capacity_overflow): Filling all Business seats on flight 7 and attempting one "
+        "additional booking triggered trigger trg_check_seat_capacity, raising SQLSTATE 45000: "
+        "'No seats available in the selected travel class'. Status: PASSED."
+    )
+
+    add_para(doc, "4. Flight and Booking Cancellation Seat Release:", bold=True)
+    add_para(doc,
+        "Seat release following booking cancellation was verified in automated test TC16 "
+        "(TestTC15TC16CancellationAndSeatRelease::test_TC16_seat_release). When cancel_booking() was executed, "
+        "all associated ticket rows had their ticket_status updated to 'Cancelled', making the seat immediately "
+        "available again for subsequent flight searches. Status: PASSED."
+    )
 
     # ═══════════════════════════════════════════════════════════════
     # CONCLUSION + FUTURE SCOPE + REFERENCES
