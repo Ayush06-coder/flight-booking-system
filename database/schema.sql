@@ -98,7 +98,8 @@ CREATE TABLE flight_schedules (
         REFERENCES airports(airport_id)     ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_fs_destination            FOREIGN KEY (destination_airport_id)
         REFERENCES airports(airport_id)     ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT chk_diff_airports            CHECK (origin_airport_id <> destination_airport_id),
+    -- NOTE: origin <> destination enforced by trigger trg_prevent_same_airport (below)
+    -- MySQL 8 does not allow CHECK constraints to reference FK columns
     CONSTRAINT chk_arrival_after_departure  CHECK (arrival_datetime > departure_datetime),
     CONSTRAINT chk_base_fare                CHECK (base_fare >= 0)
 ) ENGINE=InnoDB;
@@ -346,6 +347,29 @@ GROUP BY al.airline_name, orig.city, dest.city;
 -- =============================================================================
 
 DELIMITER $$
+
+-- Trigger: trg_prevent_same_airport
+-- Enforces business rule 4: origin and destination airports must differ.
+-- (CHECK constraint cannot reference FK columns in MySQL 8.)
+CREATE TRIGGER trg_prevent_same_airport
+BEFORE INSERT ON flight_schedules
+FOR EACH ROW
+BEGIN
+    IF NEW.origin_airport_id = NEW.destination_airport_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Origin and destination airports must be different';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_prevent_same_airport_update
+BEFORE UPDATE ON flight_schedules
+FOR EACH ROW
+BEGIN
+    IF NEW.origin_airport_id = NEW.destination_airport_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Origin and destination airports must be different';
+    END IF;
+END$$
 
 -- Trigger: trg_booking_status_insert
 -- Automatically records initial booking status in history on INSERT.

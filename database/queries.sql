@@ -528,8 +528,11 @@ FROM bookings b
 JOIN tickets t ON t.booking_id = b.booking_id
 WHERE b.booking_reference = 'BKTEST01';
 
--- Clean up demo transaction record
-DELETE FROM tickets  WHERE booking_id = (SELECT booking_id FROM bookings WHERE booking_reference = 'BKTEST01');
+-- Clean up demo transaction record (history must be deleted first due to FK RESTRICT)
+DELETE FROM booking_status_history
+WHERE booking_id = (SELECT booking_id FROM (SELECT booking_id FROM bookings WHERE booking_reference = 'BKTEST01') AS t);
+DELETE FROM tickets
+WHERE booking_id = (SELECT booking_id FROM (SELECT booking_id FROM bookings WHERE booking_reference = 'BKTEST01') AS t);
 DELETE FROM bookings WHERE booking_reference = 'BKTEST01';
 
 -- --------------------------------------------------------------------

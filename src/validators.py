@@ -20,7 +20,7 @@ def validate_email(email: str) -> tuple[bool, str]:
     """Return (True, '') if email is valid, else (False, error_message)."""
     if not email or not email.strip():
         return False, "Email address is required."
-    pattern = r"^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$"
+    pattern = r"^[\w.+\-]+@[\w\-]+(\.[a-zA-Z]{2,})+$"
     if re.match(pattern, email.strip()):
         return True, ""
     return False, f"'{email}' is not a valid email address."
