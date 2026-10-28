@@ -37,7 +37,7 @@ from src.ui.reports       import ReportsFrame
 class FlightBookingApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("✈  Flight Booking System  —  DBMS PBL Project")
+        self.title("✈  Flight Booking System")
         self.geometry("1200x760")
         self.minsize(900, 600)
 
@@ -59,8 +59,34 @@ class FlightBookingApp(tk.Tk):
 
         self._frames: dict[str, ttk.Frame] = {}
         self._active_btn = None
+
+        # Safer startup: test database connectivity BEFORE initializing UI frames
+        if not self._check_db_or_exit():
+            return
+
         self._build_ui()
-        self._test_db()
+
+    def _check_db_or_exit(self) -> bool:
+        """
+        Verify database connection before building the UI.
+        If connection fails, display an error dialog with fix steps and exit cleanly.
+        """
+        success, msg = test_connection()
+        if success:
+            self.title(f"✈  Flight Booking System  —  {msg}")
+            return True
+        else:
+            self.withdraw()  # Hide empty parent window before showing error dialog
+            messagebox.showerror(
+                "Database Connection Failed",
+                f"{msg}\n\n"
+                "Please check:\n"
+                "1. MySQL is running: brew services start mysql\n"
+                "2. Your .env file has the correct credentials\n"
+                "3. The database exists: mysql -u root -p < database/schema.sql",
+            )
+            self.destroy()
+            return False
 
     def _build_ui(self):
         # Sidebar
@@ -101,7 +127,7 @@ class FlightBookingApp(tk.Tk):
         # Footer
         tk.Label(
             sidebar,
-            text="DBMS PBL Project\n© Academic Use Only",
+            text="Flight Booking System\nDesktop Prototype",
             bg="#1a2332", fg="#7f8c8d",
             font=("Helvetica", 8), justify="center",
         ).pack(side="bottom", pady=10)
@@ -137,24 +163,23 @@ class FlightBookingApp(tk.Tk):
         btn.configure(style="Active.SidebarBtn.TButton")
         self._active_btn = btn
 
-    def _on_book_flight(self, flight_id: int, flight_info, travel_class: str):
+        # Automatically refresh target screen to ensure live data display
+        if hasattr(frame, "refresh"):
+            try:
+                frame.refresh()
+            except Exception as e:
+                messagebox.showerror(
+                    "Database Refresh Error",
+                    f"Could not refresh data for '{key}':\n{e}\n\n"
+                    "Please verify your MySQL connection."
+                )
+
+    def _on_book_flight(self, flight_id: int, flight_info=None, travel_class: str = "Economy"):
         """Called from FlightSearchFrame when user clicks 'Book Selected Flight'."""
         self._show("bookings")
-
-    def _test_db(self):
-        """Test DB connectivity on startup and show status."""
-        success, msg = test_connection()
-        if success:
-            self.title(f"✈  Flight Booking System  —  {msg}")
-        else:
-            messagebox.showerror(
-                "Database Connection Failed",
-                f"{msg}\n\n"
-                "Please check:\n"
-                "1. MySQL is running: brew services start mysql\n"
-                "2. Your .env file has the correct credentials\n"
-                "3. The database exists: mysql -u root -p < database/schema.sql",
-            )
+        bookings_frame = self._frames.get("bookings")
+        if bookings_frame and hasattr(bookings_frame, "prefill"):
+            bookings_frame.prefill(flight_id=flight_id, travel_class=travel_class)
 
 
 # ---------------------------------------------------------------------------
@@ -163,5 +188,9 @@ class FlightBookingApp(tk.Tk):
 
 if __name__ == "__main__":
     app = FlightBookingApp()
-    app.mainloop()
+    try:
+        if app.winfo_exists():
+            app.mainloop()
+    except tk.TclError:
+        pass
 

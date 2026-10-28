@@ -78,6 +78,14 @@ class PassengersFrame(ttk.Frame):
     def _load(self):
         self._populate(get_all_passengers())
 
+    def refresh(self):
+        """Reload passenger records from MySQL without clearing form inputs."""
+        term = self._search_var.get().strip()
+        if term:
+            self._populate(search_passengers(term))
+        else:
+            self._load()
+
     def _search(self):
         term = self._search_var.get().strip()
         if not term:

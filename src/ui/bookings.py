@@ -31,6 +31,7 @@ class BookingsFrame(ttk.Frame):
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
 
         nb = ttk.Notebook(self)
+        self._notebook = nb
         nb.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
         self._list_tab   = ttk.Frame(nb, padding=12)
@@ -151,29 +152,20 @@ class BookingsFrame(ttk.Frame):
         ttk.Label(p, text="Step 1: Select Flight", font=("Helvetica", 12, "bold")).pack(anchor="w")
 
         # Flight selector
-        flights = get_all_flights()
-        self._flight_map = {
-            f"{f['flight_number']} | {f['origin_city']} → {f['destination_city']} | {str(f['departure_datetime'])}":
-                f["flight_id"]
-            for f in flights if f["flight_status"] != "Cancelled"
-        }
+        self._flight_map = {}
         self._flight_var = tk.StringVar()
-        ttk.Combobox(p, textvariable=self._flight_var,
-                     values=list(self._flight_map.keys()), width=70, state="readonly").pack(
-            fill="x", pady=(4, 12))
+        self._flight_cb = ttk.Combobox(p, textvariable=self._flight_var, width=70, state="readonly")
+        self._flight_cb.pack(fill="x", pady=(4, 12))
+        self._reload_flight_options()
 
         ttk.Label(p, text="Step 2: Select Passenger", font=("Helvetica", 12, "bold")).pack(anchor="w")
 
         # Passenger selector
-        pax = get_all_passengers()
-        self._pax_map = {
-            f"{pa['full_name']} ({pa['email']})": pa["passenger_id"]
-            for pa in pax
-        }
+        self._pax_map = {}
         self._pax_var = tk.StringVar()
-        ttk.Combobox(p, textvariable=self._pax_var,
-                     values=list(self._pax_map.keys()), width=50, state="readonly").pack(
-            fill="x", pady=(4, 12))
+        self._pax_cb = ttk.Combobox(p, textvariable=self._pax_var, width=50, state="readonly")
+        self._pax_cb.pack(fill="x", pady=(4, 12))
+        self._reload_passenger_options()
 
         ttk.Label(p, text="Step 3: Seat & Class", font=("Helvetica", 12, "bold")).pack(anchor="w")
 
@@ -210,6 +202,78 @@ class BookingsFrame(ttk.Frame):
                    ).pack(pady=14)
 
         self._flight_var.trace_add("write", lambda *_: self._update_availability())
+
+    def _reload_flight_options(self):
+        """Reload active flights into the combobox, preserving current selection if valid."""
+        flights = get_all_flights()
+        self._flight_map = {
+            f"{f['flight_number']} | {f['origin_city']} → {f['destination_city']} | {str(f['departure_datetime'])}":
+                f["flight_id"]
+            for f in flights if f["flight_status"] != "Cancelled"
+        }
+        labels = list(self._flight_map.keys())
+        if hasattr(self, "_flight_cb"):
+            self._flight_cb["values"] = labels
+        current = self._flight_var.get()
+        if current and current not in self._flight_map:
+            self._flight_var.set("")
+
+    def _reload_passenger_options(self):
+        """Reload passengers into the combobox, preserving current selection if valid."""
+        pax = get_all_passengers()
+        self._pax_map = {
+            f"{pa['full_name']} ({pa['email']})": pa["passenger_id"]
+            for pa in pax
+        }
+        labels = list(self._pax_map.keys())
+        if hasattr(self, "_pax_cb"):
+            self._pax_cb["values"] = labels
+        current = self._pax_var.get()
+        if current and current not in self._pax_map:
+            self._pax_var.set("")
+
+    def prefill(self, flight_id: int, travel_class: str = "Economy"):
+        """
+        Pre-fill the booking form with a selected flight and travel class.
+        Switches to the 'New Booking' tab, reloads flights if necessary,
+        sets the flight and class, clears the seat field, and updates availability/fare.
+        """
+        # Switch to New Booking tab (index 1)
+        if hasattr(self, "_notebook"):
+            self._notebook.select(1)
+
+        # Look for flight in existing map; refresh if not found
+        matching_key = next((k for k, fid in self._flight_map.items() if fid == flight_id), None)
+        if not matching_key:
+            self._reload_flight_options()
+            matching_key = next((k for k, fid in self._flight_map.items() if fid == flight_id), None)
+
+        if matching_key:
+            self._flight_var.set(matching_key)
+
+        if travel_class in ("Economy", "Business"):
+            self._class_var.set(travel_class)
+
+        # Clear seat so user picks a new seat, leaving passenger selection as is
+        self._seat_var.set("")
+
+        # Refresh availability & fare labels
+        self._update_availability()
+
+    def refresh(self):
+        """
+        Refresh booking list, dropdown options, and availability without wiping form input.
+        """
+        self._load_bookings()
+        self._reload_flight_options()
+        self._reload_passenger_options()
+        if self._flight_var.get():
+            self._update_availability()
+        detail_ref = self._detail_ref.get().strip() if hasattr(self, "_detail_ref") else ""
+        if detail_ref:
+            booking = get_booking_by_reference(detail_ref)
+            if booking:
+                self._populate_detail(booking["booking_id"])
 
     def _update_availability(self):
         flight_label = self._flight_var.get()

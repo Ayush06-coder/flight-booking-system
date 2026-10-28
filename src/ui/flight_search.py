@@ -100,10 +100,24 @@ class FlightSearchFrame(ttk.Frame):
                 f"{a['city']} ({a['airport_code']})": a["airport_id"]
                 for a in self._airports
             }
+            curr_origin = self._origin_var.get()
+            curr_dest   = self._dest_var.get()
             self._origin_cb["values"] = labels
-            self._dest_cb["values"] = labels
+            self._dest_cb["values"]   = labels
+            if curr_origin in labels:
+                self._origin_var.set(curr_origin)
+            if curr_dest in labels:
+                self._dest_var.set(curr_dest)
         except Exception as e:
             messagebox.showerror("DB Error", f"Could not load airports:\n{e}")
+
+    def refresh(self):
+        """Reload airport choices and refresh active search results if present."""
+        self._load_airports()
+        # If user has searched and has active criteria, refresh search results to update seat availability
+        if (self._origin_var.get() and self._dest_var.get() and
+                self._tree.get_children() and self._origin_var.get() != self._dest_var.get()):
+            self._search()
 
     def _search(self):
         origin_label = self._origin_var.get()

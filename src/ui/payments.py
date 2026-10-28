@@ -84,12 +84,16 @@ class PaymentsFrame(ttk.Frame):
         vsb.grid(row=4, column=1, sticky="ns")
         hsb.grid(row=5, column=0, sticky="ew")
 
-        ttk.Button(self, text="⟳  Refresh", command=self._load).grid(
+        ttk.Button(self, text="⟳  Refresh", command=self.refresh).grid(
             row=6, column=0, sticky="w", pady=(8, 0))
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(4, weight=1)
         self._current_booking_id = None
+
+    def refresh(self):
+        """Reload all payment records from MySQL without clearing form inputs."""
+        self._load()
 
     def _load(self):
         for r in self._tree.get_children():

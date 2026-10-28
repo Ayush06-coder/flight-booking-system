@@ -24,6 +24,7 @@ from src.db_connection import get_connection
 class ReportsFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
+        self._tree_loaders = []
         self._build()
 
     def _build(self):
@@ -50,6 +51,11 @@ class ReportsFrame(ttk.Frame):
             nb.add(frame, text=title)
             builder(frame)
 
+    def refresh(self):
+        """Reload all report tables from MySQL."""
+        for tree, loader_fn in self._tree_loaders:
+            self._populate(tree, loader_fn)
+
     # ---------------------------------------------------------------
     # Helper: build a simple Treeview report tab
     # ---------------------------------------------------------------
@@ -70,6 +76,7 @@ class ReportsFrame(ttk.Frame):
         tree.pack(side="left", fill="both", expand=True)
         vsb.pack(side="right", fill="y")
 
+        self._tree_loaders.append((tree, loader_fn))
         self._populate(tree, loader_fn)
         return tree
 
@@ -265,6 +272,7 @@ class ReportsFrame(ttk.Frame):
             self._date_tree.heading(c, text=h)
             self._date_tree.column(c, width=w, anchor="center")
         self._date_tree.pack(fill="both", expand=True)
-        self._populate(self._date_tree,
-                       lambda: get_bookings_by_date_range(self._from_var.get(), self._to_var.get()))
+        by_date_loader = lambda: get_bookings_by_date_range(self._from_var.get(), self._to_var.get())
+        self._tree_loaders.append((self._date_tree, by_date_loader))
+        self._populate(self._date_tree, by_date_loader)
 

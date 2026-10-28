@@ -1,57 +1,53 @@
 # ✈️ Flight Booking System
 
-> **Academic DBMS Project Based Learning (PBL)**  
-> **Course:** Database Management Systems (B.Tech Computer Science & Engineering)  
-> **Stack:** MySQL 8.x + Python 3 (Tkinter / ttk) + Git / GitHub
+A database-driven desktop application engineered with **MySQL 8.x** and **Python 3 (Tkinter / ttk)** for managing domestic flight schedules, seat inventories, customer reservations, and transaction records.
+
+The application emphasizes clean relational architecture, strict transactional consistency, parameterized data access, and an intuitive desktop interface optimized for macOS.
+
+> [!NOTE]
+> **Prototype & Simulation Notice:**  
+> All flight schedules, aircraft registrations, airport routes, ticket fares, passenger profiles, and payment transactions are **sample / simulated data** created for demonstration. The application does not interface with live airline Global Distribution Systems (GDS) or real banking networks.
 
 ---
 
-## 1. Overview
+## 🚀 Recent Improvements
 
-The **Flight Booking System** is an academic database-driven desktop application engineered to demonstrate relational database management concepts, database normalization (UNF through 3NF), relational integrity constraints, SQL DDL/DML implementation, and Python–database connectivity via `mysql-connector-python`. The system allows users and administrators to search flights across major domestic routes, register passengers, make seat reservations with transactional integrity, inspect active bookings, process simulated ticket cancellations, record simulated payments, and generate analytical business reports (revenue by airline, flight seat occupancy, and scheduling summaries).
-
-> [!IMPORTANT]
-> **Academic Prototype & Simulation Disclaimer:**  
-> All flight schedules, aircraft registrations, airport routes, ticket fares, passenger profiles, and payment transactions in this project are **strictly sample and simulated data** designed solely for college laboratory demonstration and academic evaluation. This system does not interface with any real airline Global Distribution System (GDS), live flight tracking API, or live banking/payment gateway.
+- **Flight Search to Booking Pre-fill:** Clicking "Book Selected Flight" from Search automatically routes to the Booking form, selects the matching flight and travel class, clears previous seat selections, and dynamically calculates real-time seat availability and class fare.
+- **Automatic Screen Refresh on Tab Switch:** Switching across any navigation tab (`Dashboard`, `Flight Search`, `Passengers`, `Flights/Admin`, `Bookings`, `Payments`, `Reports`) triggers an automatic database refresh so changes (new reservations, cancellations, passenger updates) immediately reflect without needing manual reloads or losing in-progress form inputs.
+- **Safer Startup & Error Resilience:** Database connectivity is validated before initializing UI frames. If MySQL is unreachable, the application displays a structured error dialog with actionable remediation steps and exits cleanly rather than crashing with an unhandled traceback. Refresh operations similarly trap runtime errors gracefully.
 
 ---
 
-## 2. Features
+## 📋 Features
 
-Only features that are fully implemented and verified in the application are listed below:
-
-- **Interactive Metric Dashboard:** Real-time KPI summary cards displaying live counts for registered airlines, scheduled flights, registered passengers, active bookings, and total collected revenue directly aggregated from MySQL. Includes an "Upcoming Flights" schedule overview.
-- **Parametric Flight Search:** Search scheduled flights by origin airport, destination airport, travel date, and travel class (Economy / Business) using parameterized SQL queries. Dynamically displays flight numbers, carrier names, departure/arrival timestamps, aircraft models, base fares, and real-time available seat counts.
-- **Passenger Management:** Complete passenger directory supporting registration, search, record updating, and deletion. Form inputs are validated for email format, 10-digit Indian mobile numbers, and valid date formats prior to executing database operations.
-- **Transactional Flight Booking:** Create flight reservations with explicit ACID transaction boundaries (`conn.start_transaction()`, `SELECT ... FOR UPDATE`, and `conn.commit()`). Generates unique 8-character alphanumeric booking references (e.g., `BK2MV3U0`), verifies real-time seat availability, dynamically estimates class fares, and inserts both reservation and ticket records atomically.
-- **Booking Management & Inspection:** Browse all historical and active reservations, search by booking reference, view associated passenger and flight details, and inspect the complete lifecycle status history of each reservation.
-- **Booking Cancellation & Status Tracking:** Cancel confirmed reservations with atomic transaction handling. Automatically transitions ticket status to `Cancelled`, updates booking status to `Cancelled`, records an audit event in `booking_status_history` via a database trigger, and marks the corresponding payment record as `Refunded`.
-- **Simulated Payment Management:** Record and review simulated payment transactions associated with valid booking references. Supports payment method selection (Credit Card, Debit Card, UPI, Net Banking) and stores transaction references and payment statuses (`Completed`, `Pending`, `Refunded`).
-- **Analytical Reporting:**
-  - **Revenue by Airline:** Aggregates ticket sales, confirmed booking counts, and total revenue per airline carrier.
-  - **Flight Seat Occupancy:** Computes real-time capacity utilization percentages for every scheduled flight based on active tickets sold.
-  - **Flight Schedules Master:** Administrative overview of all scheduled, delayed, and cancelled flight instances across the network.
-- **Administrative Flight & Fleet Overview:** View carrier information, aircraft specifications (total, economy, and business seat splits), airport records, and operating flight schedules.
+- **Interactive Metric Dashboard:** Real-time KPI summary cards displaying live counts for registered airlines, scheduled flights, registered passengers, active bookings, and total collected revenue directly aggregated from MySQL.
+- **Parametric Flight Search:** Search scheduled flights by origin airport, destination airport, travel date, and travel class (Economy / Business) using parameterized SQL queries. Displays carrier names, departure/arrival timestamps, aircraft models, base fares, and live seat counts.
+- **Passenger Management:** Full directory supporting passenger registration, search, profile updates, and deletion with client-side validation for email syntax, 10-digit Indian mobile numbers, and date formats.
+- **Transactional Flight Booking:** Create flight reservations with explicit ACID transaction boundaries (`conn.start_transaction()`, pessimistic row locking via `SELECT ... FOR UPDATE`, and `conn.commit()`). Generates unique 8-character alphanumeric booking references (e.g., `BK2MV3U0`) and inserts reservation and ticket records atomically.
+- **Reservation Lifecycle & Cancellation:** View active bookings, search by reference, and process cancellations. Cancelling a booking marks tickets as `Cancelled`, updates payment status to `Refunded`, and records an audit log in `booking_status_history` via a database trigger.
+- **Simulated Payment Management:** Record and inspect simulated payment transactions linked to bookings, supporting payment method selection (Credit Card, Debit Card, UPI, Net Banking) and tracking transaction states (`Completed`, `Pending`, `Refunded`).
+- **Analytical Reporting:** Tabulated business reports including **Revenue by Airline**, **Flight Seat Occupancy**, **Revenue by Route**, **Booking Status Breakdown**, **Payment Status Summary**, and **Date-Range Filtering**.
+- **Fleet & Schedule Administration:** Administrative view to inspect and manage airlines, domestic airports, aircraft fleet specifications, and operating flight schedules.
 
 ---
 
-## 3. Technology Stack
+## 🛠️ Technology Stack
 
-| Layer | Technology | Details & Role |
+| Layer | Technology | Purpose |
 |---|---|---|
-| **Database** | MySQL 8.x | Relational DBMS hosting `flight_booking_db` with InnoDB engine, foreign keys, triggers, views, and check constraints |
+| **Database** | MySQL 8.x | Relational database engine using InnoDB, foreign keys, triggers, views, and check constraints |
 | **Language** | Python 3 (3.15+) | Core application logic, repositories, and UI framework |
-| **Database Connector** | `mysql-connector-python` (>=9.3.0 / 26.10.0) | Pure Python MySQL driver for connection management and parameterized query execution |
-| **Desktop Frontend** | Tkinter & `ttk` | Native desktop GUI using the `clam` theme for macOS light/dark appearance compatibility |
-| **Data Presentation** | `ttk.Treeview` | Structured tabular displays with column sorting and vertical scrollbars |
-| **Testing Framework** | `pytest` (8.3.5) | Automated test harness executing unit validation and live database integration suites |
-| **Configuration** | `python-dotenv` (1.1.0) | Loads database credentials securely from local `.env` |
-| **Documentation** | `python-docx` (1.1.2) | Generates the 35-section academic project report (`.docx`) |
-| **Version Control** | Git & GitHub | Source code tracking and remote backup |
+| **Database Connector** | `mysql-connector-python` (26.10.0 / >=9.3.0) | Pure Python MySQL driver for connection pooling and parameterized query execution |
+| **Desktop Frontend** | Tkinter & `ttk` | Native desktop GUI using the `clam` theme for macOS light/dark compatibility |
+| **Data Presentation** | `ttk.Treeview` | Tabular data grids with column sorting and scrollable views |
+| **Testing Framework** | `pytest` (8.3.5) | Automated test suite covering input validation, DB integration, and screen contracts |
+| **Configuration** | `python-dotenv` (1.1.0) | Loads environment configuration securely from local `.env` |
+| **Report Generation** | `python-docx` (1.1.2) | Generates comprehensive documentation reports (`.docx`) |
+| **Version Control** | Git & GitHub | Distributed version control and source code hosting |
 
 ---
 
-## 4. Database Design
+## 🗄️ Database Design
 
 The relational schema is implemented in **MySQL 8.x** under the database name `flight_booking_db`. It consists of **9 normalized tables (3NF)**, **3 database views**, and **6 business logic triggers**.
 
@@ -80,7 +76,7 @@ The relational schema is implemented in **MySQL 8.x** under the database name `f
 - `trg_aircraft_seats_check` / `trg_aircraft_seats_check_update`: Verifies seat capacity consistency before inserting or modifying aircraft records.
 
 ### Entity-Relationship (ER) Diagram
-The Mermaid ER diagram source code is maintained in [`diagrams/er_diagram.mmd`](diagrams/er_diagram.mmd).
+The Mermaid ER diagram source code is available in [`diagrams/er_diagram.mmd`](diagrams/er_diagram.mmd).
 
 ```
 airlines (1) ────< aircraft (N) ────< flight_schedules (N)
@@ -92,13 +88,11 @@ bookings (1) ────< booking_status_history (N)
 
 ---
 
-## 5. Project Folder Structure
-
-The project directory is structured as follows:
+## 📁 Project Folder Structure
 
 ```
 flight_booking_system/
-├── .env.example                          # Template for database credentials (safe to commit)
+├── .env.example                          # Template for database configuration (safe to commit)
 ├── .gitignore                            # Excludes .env, .venv/, __pycache__/, .DS_Store
 ├── PROGRESS.md                           # Development milestone and checkpoint log
 ├── README.md                             # Comprehensive project documentation
@@ -109,7 +103,7 @@ flight_booking_system/
 ├── diagrams/
 │   └── er_diagram.mmd                    # Mermaid Entity-Relationship diagram source
 ├── report/
-│   └── Flight_Booking_System_Report.docx # 35-section academic project report with embedded figures
+│   └── Flight_Booking_System_Report.docx # Detailed project documentation report with figures
 ├── screenshots/                          # Real application GUI captures from macOS
 │   ├── 01_dashboard.png                  # Dashboard with live metric cards and flight schedule table
 │   ├── 02_flight_search_form.png         # Flight search inquiry form
@@ -139,24 +133,23 @@ flight_booking_system/
 │   │   └── payment_repository.py         # Payment creation and lookup operations
 │   └── ui/                               # Modular Tkinter GUI frames
 │       ├── __init__.py
-│       ├── bookings.py                   # Booking creation, search, and cancellation UI
+│       ├── bookings.py                   # Booking creation, search, prefill, and cancellation UI
 │       ├── dashboard.py                  # Metric cards and upcoming schedule UI
 │       ├── flight_search.py              # Flight search and seat availability UI
 │       ├── flights.py                    # Flight schedule admin UI
 │       ├── passengers.py                 # Passenger registration and directory UI
 │       ├── payments.py                   # Payment recording and history UI
 │       └── reports.py                    # Analytical reporting UI
-└── tests/                                # Automated test suite (72 tests)
+└── tests/                                # Automated test suite (85 tests)
     ├── __init__.py
     ├── test_db.py                        # 21 integration tests (TC01 - TC21) against live MySQL
+    ├── test_improvements.py              # 13 tests for refresh/prefill contracts and error handling
     └── test_validators.py                # 51 unit tests for inputs and business validation logic
 ```
 
 ---
 
-## 6. Setup on macOS (zsh)
-
-Follow these exact steps in macOS Terminal (`zsh`) to set up and run the system.
+## ⚙️ Setup on macOS (zsh)
 
 ### Step 1: Install System Prerequisites
 Install MySQL 8 and Python Tkinter support via Homebrew:
@@ -164,7 +157,7 @@ Install MySQL 8 and Python Tkinter support via Homebrew:
 brew install mysql python-tk
 ```
 
-Start the MySQL background service:
+Start the MySQL service:
 ```zsh
 brew services start mysql
 ```
@@ -174,24 +167,24 @@ Verify MySQL is running:
 brew services list | grep mysql
 ```
 
-### Step 2: Navigate to Project and Set Up Virtual Environment
+### Step 2: Set Up Virtual Environment
 ```zsh
 cd ~/flight_booking_system
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### Step 3: Install Python Dependencies
+### Step 3: Install Dependencies
 ```zsh
 pip install -r requirements.txt
 ```
 
 ### Step 4: Configure Database Credentials
-Create your local `.env` configuration file from the template:
+Create your local `.env` configuration file:
 ```zsh
 cp .env.example .env
 ```
-Open `.env` in your text editor and set your local MySQL password:
+Edit `.env` and set your local MySQL credentials:
 ```ini
 DB_HOST=localhost
 DB_PORT=3306
@@ -199,10 +192,10 @@ DB_USER=root
 DB_PASSWORD=your_actual_mysql_password
 DB_NAME=flight_booking_db
 ```
-*(Note: `.env` is strictly ignored by Git and will never be tracked or pushed).*
+*(Note: `.env` is strictly excluded by `.gitignore` and never committed to version control).*
 
-### Step 5: Initialize the Database (DDL & DML)
-Load the database schema (creates `flight_booking_db`, tables, views, and triggers):
+### Step 5: Initialize Schema & Sample Data
+Import the DDL schema:
 ```zsh
 mysql -u root -p < database/schema.sql
 ```
@@ -213,16 +206,11 @@ mysql -u root -p flight_booking_db < database/queries.sql
 ```
 
 ### Step 6: Verify Database Connectivity
-Verify that Python connects successfully to `flight_booking_db` using the connection helper:
+Verify the Python MySQL connector connects properly:
 ```zsh
 python3 -c "from src.db_connection import test_connection; print('Connected:', test_connection())"
 ```
-*Expected output:* `Connected: True`
-
-You can also inspect the populated tables from the command line:
-```zsh
-mysql -u root -p flight_booking_db -e "SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema='flight_booking_db';"
-```
+*Expected output:* `Connected: (True, 'Connected to database: flight_booking_db')`
 
 ### Step 7: Launch the Application
 ```zsh
@@ -231,67 +219,29 @@ python3 src/main.py
 
 ---
 
-## 7. Running the Automated Tests
+## 🧪 Running the Automated Tests
 
-The project includes a comprehensive two-tier test suite:
-1. **Unit Tests (`tests/test_validators.py`):** 51 tests covering input validation routines (email, phone, dates, seat codes, fare amounts, name syntax, and unique booking reference generation).
-2. **Integration Tests (`tests/test_db.py`):** 21 tests covering all documented test cases (`TC01` through `TC21`) against a live MySQL database (table integrity, foreign key rejection, duplicate seat conflict, capacity overflow, transactions, and triggers).
+The test suite validates data models, business rules, transactional rollback, UI contracts, and SQL integrity:
 
-To run the complete test suite:
 ```zsh
 source .venv/bin/activate
 pytest tests/ -v
 ```
 
-### Real Test Execution Results
+### Test Suite Summary
 ```
-============================= test session starts ==============================
-platform darwin -- Python 3.15.2, pytest-8.3.5, pluggy-1.7.0 -- .venv/bin/python3.15
-cachedir: .pytest_cache
-rootdir: /Users/ayushsawhney/flight_booking_system
-collected 72 items
-
-tests/test_db.py::test_TC01_database_exists PASSED                       [  1%]
-tests/test_db.py::test_TC02_all_tables_exist PASSED                      [  2%]
-tests/test_db.py::test_TC03_sample_data_counts PASSED                    [  4%]
-tests/test_db.py::test_TC04_successful_connection PASSED                 [  5%]
-tests/test_db.py::test_TC05_flight_search PASSED                         [  6%]
-tests/test_db.py::TestTC06PassengerRegistration::test_add_and_retrieve PASSED [  8%]
-tests/test_db.py::TestTC07BookingCreation::test_create_booking PASSED    [  9%]
-tests/test_db.py::test_TC08_unique_booking_reference PASSED              [ 11%]
-tests/test_db.py::TestTC09DuplicateSeat::test_duplicate_seat_rejected PASSED [ 12%]
-tests/test_db.py::test_TC10_capacity_overflow PASSED                     [ 13%]
-tests/test_db.py::test_TC11_invalid_fk_rejection PASSED                  [ 15%]
-tests/test_db.py::test_TC12_invalid_travel_class PASSED                  [ 16%]
-tests/test_db.py::test_TC13_negative_fare PASSED                         [ 18%]
-tests/test_db.py::test_TC14_cancelled_flight_booking PASSED              [ 19%]
-tests/test_db.py::TestTC15TC16CancellationAndSeatRelease::test_TC15_cancellation PASSED [ 20%]
-tests/test_db.py::TestTC15TC16CancellationAndSeatRelease::test_TC16_seat_release PASSED [ 22%]
-tests/test_db.py::test_TC17_payment_status PASSED                        [ 23%]
-tests/test_db.py::test_TC18_join_query PASSED                            [ 25%]
-tests/test_db.py::test_TC19_revenue_accuracy PASSED                      [ 26%]
-tests/test_db.py::test_TC20_transaction_rollback PASSED                  [ 27%]
-tests/test_db.py::test_TC21_connection_error_handling PASSED             [ 29%]
-tests/test_validators.py::TestValidateEmail (6 tests) PASSED            [ 37%]
-tests/test_validators.py::TestValidatePhone (6 tests) PASSED            [ 45%]
-tests/test_validators.py::TestValidateDateString (5 tests) PASSED        [ 52%]
-tests/test_validators.py::TestValidateTravelClass (4 tests) PASSED       [ 58%]
-tests/test_validators.py::TestValidatePassengerCount (6 tests) PASSED   [ 66%]
-tests/test_validators.py::TestValidateFare (5 tests) PASSED             [ 73%]
-tests/test_validators.py::TestValidateName (5 tests) PASSED             [ 80%]
-tests/test_validators.py::TestValidateSeatNumber (7 tests) PASSED       [ 90%]
-tests/test_validators.py::TestGenerateBookingReference (2 tests) PASSED  [ 93%]
-tests/test_validators.py::TestValidateDifferentAirports (2 tests) PASSED [ 95%]
-tests/test_validators.py::TestCollectErrors (3 tests) PASSED            [100%]
-
-============================== 72 passed in 1.80s ==============================
+tests/test_db.py            21 passed (TC01 - TC21 database integration)
+tests/test_improvements.py  13 passed (refresh/prefill contracts, safer startup)
+tests/test_validators.py    51 passed (input sanitization & reference generator)
+─────────────────────────────────────────────────────────────────────────────
+TOTAL                       85 passed, 0 failed in 1.91s
 ```
 
 ---
 
-## 8. Application Screenshots
+## 📸 Application Screenshots
 
-All screenshots below represent **genuine user captures** of the running Tkinter frontend on macOS connected to the live MySQL database:
+All screenshots below represent **genuine captures** of the running desktop application on macOS:
 
 ### Figure 1: Application Dashboard
 ![Dashboard](screenshots/01_dashboard.png)  
@@ -343,64 +293,38 @@ All screenshots below represent **genuine user captures** of the running Tkinter
 
 ---
 
-## 9. Booking Logic & Double-Booking Prevention
+## 🔒 Booking Logic & Double-Booking Prevention
 
-The system implements multi-layered transactional consistency to prevent invalid bookings and overbooking:
+The system implements transactional consistency to prevent invalid bookings and overbooking:
 
 1. **Atomic Transaction Scope:** Booking creation in [`src/repositories/booking_repository.py`](src/repositories/booking_repository.py) runs inside an explicit transaction (`conn.start_transaction()`). If any validation or insert step fails, `conn.rollback()` restores the database state.
 2. **Pessimistic Row Locking (`FOR UPDATE`):** When booking, the flight schedule row is locked with `SELECT flight_status FROM flight_schedules WHERE flight_id=%s FOR UPDATE` to prevent concurrent modifications while reading status.
-3. **Capacity Threshold Verification:** The repository queries the aircraft class capacity (`economy_seats` or `business_seats`) and counts active tickets (`SELECT COUNT(*) FROM tickets WHERE flight_id=%s AND travel_class=%s AND ticket_status='Active'`). If `booked >= capacity`, the transaction is rolled back and a `RuntimeError` is raised.
-4. **Relational Seat Uniqueness Constraint:** The `tickets` table enforces a composite unique key:
+3. **Capacity Threshold Verification:** The repository queries aircraft class capacity (`economy_seats` or `business_seats`) and counts active tickets (`SELECT COUNT(*) FROM tickets WHERE flight_id=%s AND travel_class=%s AND ticket_status='Active'`). If `booked >= capacity`, the transaction is aborted and rolled back.
+4. **Relational Seat Uniqueness Constraint:** The `tickets` table enforces a composite unique constraint:
    ```sql
    CONSTRAINT uq_flight_seat UNIQUE (flight_id, seat_number)
    ```
-   If a duplicate seat number is assigned to the same flight, MySQL immediately throws error `1062 (Duplicate entry)`, triggering an immediate rollback.
-5. **Academic Scope Note:** This implementation provides robust transactional consistency suitable for a single-database desktop system. It does not implement distributed locking, GDS PNR queuing, or multi-seat reservation shopping carts. In this prototype, cancelling a booking updates `ticket_status` to `Cancelled` and releases class capacity for the flight, while the historical row remains in `tickets` for audit purposes.
+   If a duplicate seat number is assigned to the same flight, MySQL throws error `1062 (Duplicate entry)`, immediately triggering a rollback.
+5. **Technical Scope & Realism:** This design provides robust transactional consistency for a single-database desktop environment. It does not implement distributed locking, GDS PNR queuing, or multi-seat shopping carts. In this prototype, cancelling a booking marks the ticket as `Cancelled` and releases class capacity for the flight, while the row is retained in `tickets` for audit history.
 
 ---
 
-## 10. macOS Troubleshooting
+## 🔧 Troubleshooting for macOS
 
 | Issue | Root Cause | Solution |
 |---|---|---|
-| `ModuleNotFoundError: No module named 'tkinter'` | System Python on macOS does not include Tkinter by default. | Run `brew install python-tk` and ensure your virtual environment uses the Homebrew Python binary. |
-| `Can't connect to local MySQL server through socket` | MySQL service is not running. | Run `brew services start mysql` and verify status with `brew services list`. |
-| `Access denied for user 'root'@'localhost'` | Incorrect password specified in `.env`. | Open `.env` and verify `DB_PASSWORD` matches the password configured during MySQL installation. |
+| `ModuleNotFoundError: No module named 'tkinter'` | System Python on macOS omits Tkinter by default. | Run `brew install python-tk` and ensure your virtual environment uses the Homebrew Python binary. |
+| `Can't connect to local MySQL server through socket` | MySQL background daemon is not running. | Run `brew services start mysql` and verify status with `brew services list`. |
+| `Access denied for user 'root'@'localhost'` | Incorrect password specified in `.env`. | Open `.env` and verify `DB_PASSWORD` matches your local MySQL root password. |
 | `Unknown database 'flight_booking_db'` | Database schema has not been imported yet. | Execute `mysql -u root -p < database/schema.sql` to initialize the database. |
-| `AttributeError: module 'ssl' has no attribute 'PROTOCOL_TLSv1'` | Python 3.15 removed deprecated TLSv1 constants in older connector packages. | Use `mysql-connector-python>=9.3.0` (installed version `26.10.0`), which contains compatibility patches for Python 3.15. |
-| Tkinter styling appears broken or unreadable | macOS Dark Mode overriding standard native widgets. | The application explicitly enforces the `clam` theme with explicit hex foreground/background definitions to guarantee readability across all macOS display modes. |
+| `AttributeError: module 'ssl' has no attribute 'PROTOCOL_TLSv1'` | Python 3.15 removed deprecated TLSv1 constants. | Use `mysql-connector-python>=9.3.0` (installed version `26.10.0`), which includes compatibility patches for Python 3.15. |
+| Dark Mode visual contrast | macOS Dark Mode overriding standard native widgets. | The application enforces the `clam` theme with explicit hex colors to ensure full readability across all macOS display modes. |
 
 ---
 
-## 11. Known Limitations
+## ⚠️ Known Limitations
 
-- **Simulated Sample Data:** All flight schedules, aircraft registrations, airport codes, passenger profiles, and payment references are purely synthetic.
-- **Single-Seat Booking Workflow:** The desktop UI is designed for single-passenger reservations per booking transaction. Group bookings with multiple tickets are supported in the database schema but require separate booking transactions in the frontend prototype.
-- **Simulated Payment Gateway:** No real banking gateway or external payment API is integrated; payments are processed as simulated records directly within MySQL.
-- **Screenshot Coverage Note:** Out of 14 planned screenshots, 12 genuine captures were taken and embedded. Two planned dialog screenshots (`04_passenger_registration.png` and `09_booking_detail.png`) were omitted to avoid artificial mockups; their underlying functionality is comprehensively verified by automated test cases `TC06`, `TC07`, `TC09`, `TC10`, `TC16`, and `TC18`.
-
----
-
-## 12. Faculty Demonstration Sequence
-
-To conduct an effective 5-to-10 minute project evaluation with a faculty mentor:
-
-1. **System Launch:** Open Terminal, activate the environment, and launch the application:
-   ```zsh
-   cd ~/flight_booking_system && source .venv/bin/activate && python3 src/main.py
-   ```
-2. **Dashboard Overview:** Highlight the 5 real-time KPI cards reflecting live counts from MySQL tables (`airlines`, `flight_schedules`, `passengers`, `bookings`, `payments`).
-3. **Flight Search Demonstration:** Switch to **Flight Search**, select Origin `DEL` and Destination `BOM`, and click **Search Flights**. Point out that available seats are calculated live by subtracting active tickets from aircraft capacity.
-4. **Passenger Registration:** Navigate to **Passengers**, add a new passenger profile, and verify that the record immediately appears in the MySQL table on the right.
-5. **New Flight Booking:** Switch to **Bookings** → **New Booking**. Select a flight and passenger, choose `Business` class, assign a seat code (e.g., `E12A`), and click **Confirm Booking**. Display the generated 8-character reference code (e.g., `BK2MV3U0`).
-6. **Double-Booking Prevention Test:** Attempt to book the exact same flight and seat (`E12A`) again. Show the faculty member the error dialog triggered by the relational `uq_flight_seat` constraint and rollback logic.
-7. **Reservation Inspection & Cancellation:** Find the newly created booking in the **All Bookings** list, click **View Details / Cancel**, and click **Cancel Booking**. Demonstrate that the booking and ticket statuses transition to `Cancelled`, payment marks as `Refunded`, and an audit row appears in `booking_status_history`.
-8. **Analytical Reports:** Open **Reports** and demonstrate the **Revenue by Airline** aggregation and the **Flight Occupancy** percentage report.
-9. **Direct Database Verification:** Exit the app and execute a verification query in Terminal:
-   ```zsh
-   mysql -u root -p flight_booking_db -e "SELECT booking_reference, booking_status, total_amount FROM bookings ORDER BY booking_id DESC LIMIT 3;"
-   ```
-10. **Automated Test Suite Execution:** Run the automated tests to prove that all 72 test cases pass:
-    ```zsh
-    pytest tests/ -v
-    ```
+- **Simulated Sample Data:** All flight schedules, aircraft registrations, airport codes, passenger profiles, and payment references are synthetic.
+- **Single-Seat Booking Workflow:** The desktop UI is designed for single-passenger reservations per booking transaction. Multi-seat group reservations are supported by the database schema but require separate transactions in the frontend prototype.
+- **Simulated Payment Gateway:** No live external banking or payment gateway is integrated; payments are handled as internal database records.
+- **Screenshot Coverage Note:** Out of 14 planned screenshots, 12 genuine captures were taken and embedded. Two planned dialog screenshots (`04_passenger_registration.png` and `09_booking_detail.png`) were omitted to avoid artificial mockups; their functionality is comprehensively verified by automated test cases `TC06`, `TC07`, `TC09`, `TC10`, `TC16`, and `TC18`.

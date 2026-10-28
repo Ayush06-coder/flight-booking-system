@@ -37,6 +37,17 @@ class FlightsFrame(ttk.Frame):
         nb.add(self._aircraft_tab,  text="🛩  Aircraft")
         nb.add(self._schedules_tab, text="📅  Schedules")
 
+    def refresh(self):
+        """Reload all administration sub-tabs from MySQL."""
+        if hasattr(self, "_airlines_tab"):
+            self._airlines_tab._load()
+        if hasattr(self, "_airports_tab"):
+            self._airports_tab._load()
+        if hasattr(self, "_aircraft_tab"):
+            self._aircraft_tab._load()
+        if hasattr(self, "_schedules_tab"):
+            self._schedules_tab._load()
+
 
 # ---------------------------------------------------------------------------
 # Airlines sub-tab
@@ -231,9 +242,9 @@ class _AircraftTab(ttk.Frame):
         for i, (lbl, key) in enumerate(fields):
             ttk.Label(form, text=lbl).grid(row=i//3, column=(i%3)*2, sticky="w", padx=6, pady=4)
             if key == "airline":
-                cb = ttk.Combobox(form, textvariable=self._vars[key],
-                                  values=airline_names, width=18, state="readonly")
-                cb.grid(row=i//3, column=(i%3)*2+1, sticky="ew", padx=6, pady=4)
+                self._airline_cb = ttk.Combobox(form, textvariable=self._vars[key],
+                                                values=airline_names, width=18, state="readonly")
+                self._airline_cb.grid(row=i//3, column=(i%3)*2+1, sticky="ew", padx=6, pady=4)
             else:
                 ttk.Entry(form, textvariable=self._vars[key], width=18).grid(
                     row=i//3, column=(i%3)*2+1, sticky="ew", padx=6, pady=4)
@@ -251,6 +262,13 @@ class _AircraftTab(ttk.Frame):
         self._tree.pack(fill="both", expand=True)
 
     def _load(self):
+        try:
+            airlines = get_all_airlines()
+            self._airline_map = {a["airline_name"]: a["airline_id"] for a in airlines}
+            if hasattr(self, "_airline_cb"):
+                self._airline_cb["values"] = list(self._airline_map.keys())
+        except Exception:
+            pass
         for r in self._tree.get_children(): self._tree.delete(r)
         for a in get_all_aircraft():
             self._tree.insert("", "end", values=(
@@ -317,10 +335,12 @@ class _SchedulesTab(ttk.Frame):
             ("Base Fare *", "fare",      None, "entry"),
             ("Status",      "status",    ["Scheduled","Boarding","Departed","Arrived","Cancelled","Delayed"], "combo"),
         ]
+        self._combos = {}
         for i, (lbl, key, values, wtype) in enumerate(widgets):
             ttk.Label(form, text=lbl, wraplength=140).grid(row=i//3, column=(i%3)*2, sticky="w", padx=4, pady=3)
             if wtype == "combo":
                 w = ttk.Combobox(form, textvariable=self._vars[key], values=values, width=22, state="readonly")
+                self._combos[key] = w
             else:
                 w = ttk.Entry(form, textvariable=self._vars[key], width=24)
             w.grid(row=i//3, column=(i%3)*2+1, sticky="ew", padx=4, pady=3)
@@ -342,6 +362,23 @@ class _SchedulesTab(ttk.Frame):
         self._tree.bind("<<TreeviewSelect>>", self._on_select)
 
     def _load(self):
+        try:
+            airlines = get_all_airlines()
+            airports = get_all_airports()
+            aircraft = get_all_aircraft()
+            self._airline_map  = {a["airline_name"]: a["airline_id"] for a in airlines}
+            self._airport_map  = {f"{a['city']} ({a['airport_code']})": a["airport_id"] for a in airports}
+            self._aircraft_map = {f"{a['aircraft_model']} ({a['registration_number']})": a["aircraft_id"] for a in aircraft}
+            if "airline" in self._combos:
+                self._combos["airline"]["values"] = list(self._airline_map.keys())
+            if "origin" in self._combos:
+                self._combos["origin"]["values"] = list(self._airport_map.keys())
+            if "dest" in self._combos:
+                self._combos["dest"]["values"] = list(self._airport_map.keys())
+            if "aircraft" in self._combos:
+                self._combos["aircraft"]["values"] = list(self._aircraft_map.keys())
+        except Exception:
+            pass
         for r in self._tree.get_children(): self._tree.delete(r)
         for f in get_all_flights():
             self._tree.insert("", "end", values=(

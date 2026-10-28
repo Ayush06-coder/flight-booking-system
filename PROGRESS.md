@@ -1,6 +1,6 @@
 # PROGRESS.md — Flight Booking System
-**Last updated:** 2026-10-28 21:50 IST
-**Status: 100% COMPLETE — Submission Ready**
+**Last updated:** 2026-10-28 22:30 IST
+**Status: 100% COMPLETE — Portfolio Ready**
 
 ---
 
@@ -13,23 +13,43 @@
 | 3 | MySQL DDL (`schema.sql`) + DML/sample data (`queries.sql`) | ✅ **Complete** — DB initialized, all 30 queries executed |
 | 4 | Python DB connection layer + all 6 repositories | ✅ **Complete** |
 | 5–6 | Tkinter frontend — all 7 UI modules + `main.py` | ✅ **Complete** |
-| 7 | Automated tests | ✅ **Complete** — 72/72 PASS (51 validator + 21 DB integration) |
+| 7 | Automated tests | ✅ **Complete** — 85/85 PASS (51 validator + 21 DB integration + 13 contracts & prefill) |
 | 8 | Run app + screenshots | ✅ **Complete** — 12 genuine screenshots captured, inspected, and validated |
 | 9 | DOCX project report | ✅ **Complete** — `report/Flight_Booking_System_Report.docx` generated with all 12 screenshots embedded |
 | 10 | Final audit, consistency check, push | ✅ **Complete** — All requirements satisfied, Git tracked & pushed |
+| 11 | Portfolio Polish & UX Refinements | ✅ **Complete** — Pre-fill from Search, automatic tab refresh, safer startup, README portfolio polish |
+
+---
+
+## Recent Improvements (Phase 11)
+
+1. **Pre-fill Booking from Search:**
+   - Implemented `BookingsFrame.prefill(flight_id, travel_class)` in `src/ui/bookings.py`.
+   - Wired `_on_book_flight` in `src/main.py` to route to the New Booking tab, select the matching flight, set the selected travel class, clear the seat field, and trigger dynamic seat availability and fare recalculation.
+2. **Dynamic Screen Refresh on Tab Switch:**
+   - Implemented `refresh()` across all 7 UI frames (`DashboardFrame`, `FlightSearchFrame`, `PassengersFrame`, `FlightsFrame`, `BookingsFrame`, `PaymentsFrame`, `ReportsFrame`).
+   - Wired `_show(key)` in `src/main.py` to automatically refresh data tables and dropdowns when switching tabs, without wiping form entries.
+3. **Safer Startup & Error Resilience:**
+   - Validates database connection with `test_connection()` before constructing UI frames.
+   - If MySQL is down, displays an error dialog with fix instructions and cleanly exits without crashing.
+   - Wraps tab refresh calls in `try...except` to prevent app termination on transient DB issues.
+4. **README Portfolio Transformation:**
+   - Re-written to read as a professional portfolio project, removing academic/college placeholders.
+   - Retained technical depth, database design, 12 verified screenshots, and honest limitations.
 
 ---
 
 ## Test Results Summary
 
 ```
-tests/test_validators.py  51 passed
-tests/test_db.py          21 passed
+tests/test_validators.py    51 passed
+tests/test_db.py            21 passed
+tests/test_improvements.py  13 passed
 ─────────────────────────────────────
-TOTAL                     72 passed, 0 failed
+TOTAL                       85 passed, 0 failed in 1.91s
 ```
 
-All 21 TC cases (TC01–TC21) executed and passed against live MySQL database.
+All 21 TC cases (TC01–TC21) and 13 contract/prefill improvement tests executed and passed against live MySQL database.
 
 ---
 
