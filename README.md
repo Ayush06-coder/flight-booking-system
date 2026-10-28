@@ -404,24 +404,3 @@ To conduct an effective 5-to-10 minute project evaluation with a faculty mentor:
     ```zsh
     pytest tests/ -v
     ```
-
----
-
-## 13. Project Report
-
-The complete, formal 35-section academic project report containing detailed literature survey, normalization proofs, DDL/DML listings, test cases, and high-resolution embedded screenshots is available at:
-
-📄 **[`report/Flight_Booking_System_Report.docx`](report/Flight_Booking_System_Report.docx)**
-
----
-
-## 14. Academic Submission Details
-
-- **Student Name:** `[Student Name]`
-- **Roll Number / Enrollment No:** `[Roll Number / Enrollment No]`
-- **Degree / Branch:** Bachelor of Technology (B.Tech) — Computer Science & Engineering
-- **Course Title:** Database Management Systems (DBMS) — Project Based Learning (PBL)
-- **Faculty Guide / Mentor:** `[Faculty Guide / Mentor Name]`
-- **Department:** Department of Computer Science & Engineering
-- **Institution / University:** `[Institution / University Name]`
-- **Academic Session:** 2026–2027
